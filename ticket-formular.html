@@ -9,50 +9,19 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #181c27;
-    --surface2: #1e2333;
-    --surface3: #252a3d;
-    --border: #2a3050;
-    --border2: #333a55;
-    --accent: #4f8ef7;
-    --purple: #6c63ff;
-    --green: #22c55e;
-    --red: #ef4444;
-    --text: #e2e8f0;
-    --text2: #94a3b8;
-    --text3: #64748b;
-    --font: 'DM Sans', sans-serif;
-    --mono: 'DM Mono', monospace;
-    --radius: 14px;
-    --radius-sm: 10px;
+    --bg: #0f1117; --surface: #181c27; --surface2: #1e2333; --surface3: #252a3d;
+    --border: #2a3050; --border2: #333a55; --accent: #4f8ef7; --purple: #6c63ff;
+    --green: #22c55e; --red: #ef4444; --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b;
+    --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace; --radius: 14px; --radius-sm: 10px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { min-height: 100%; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 16px; -webkit-font-smoothing: antialiased; }
-
-  /* SETUP */
-  #setup-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .setup-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 28px; width: 100%; max-width: 440px; }
-  .setup-logo { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-  .setup-logo span { color: var(--accent); }
-  .setup-sub { color: var(--text3); font-size: 13px; margin-bottom: 24px; line-height: 1.6; }
-  .setup-hint { background: rgba(79,142,247,.08); border: 1px solid rgba(79,142,247,.2); border-radius: var(--radius-sm); padding: 14px; font-size: 12px; color: var(--text2); line-height: 1.8; margin-bottom: 20px; }
-  .setup-hint code { background: var(--surface3); padding: 1px 6px; border-radius: 4px; font-family: var(--mono); color: var(--accent); font-size: 11px; }
-  .setup-field { margin-bottom: 14px; }
-  .setup-field label { display: block; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 7px; }
-  .setup-field input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 13px 15px; color: var(--text); font-family: var(--font); font-size: 15px; outline: none; transition: border-color .2s; }
-  .setup-field input:focus { border-color: var(--accent); }
-  #setup-error { color: var(--red); font-size: 12px; margin-bottom: 12px; display: none; }
-
-  /* FORM */
-  #form-screen { display: none; min-height: 100vh; }
+  #form-screen { display: block; min-height: 100vh; }
   .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 20px 16px; position: sticky; top: 0; z-index: 10; }
   .header-logo { font-size: 12px; font-weight: 600; color: var(--text3); font-family: var(--mono); letter-spacing: .05em; margin-bottom: 4px; }
   .header-title { font-size: 22px; font-weight: 700; }
   .header-title span { color: var(--purple); }
   .form-body { padding: 24px 20px 48px; max-width: 500px; margin: 0 auto; }
-
-  /* FIELDS */
   .field { margin-bottom: 22px; }
   .field label { display: block; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 9px; }
   .field label .req { color: var(--accent); margin-left: 2px; }
@@ -69,21 +38,12 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 16px center; padding-right: 42px; cursor: pointer;
   }
-
-  /* PRIORITY */
   .prio-group { display: flex; gap: 10px; }
-  .prio-pill {
-    flex: 1; padding: 14px 8px; border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border); background: var(--surface2);
-    color: var(--text3); font-size: 13px; font-weight: 600;
-    text-align: center; cursor: pointer; transition: all .2s; user-select: none;
-  }
+  .prio-pill { flex: 1; padding: 14px 8px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--surface2); color: var(--text3); font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; transition: all .2s; user-select: none; }
   .prio-pill .emo { display: block; font-size: 22px; margin-bottom: 5px; }
   .prio-pill.sel-hoch { border-color: var(--red); background: rgba(239,68,68,.12); color: #f87171; }
   .prio-pill.sel-normal { border-color: var(--accent); background: rgba(79,142,247,.12); color: #60a5fa; }
   .prio-pill.sel-niedrig { border-color: var(--text3); background: rgba(100,116,139,.1); color: var(--text2); }
-
-  /* PHOTO */
   .photo-zone { border: 2px dashed var(--border2); border-radius: var(--radius-sm); padding: 32px 20px; text-align: center; cursor: pointer; transition: all .2s; position: relative; }
   .photo-zone:active { border-color: var(--accent); background: rgba(79,142,247,.05); }
   .photo-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; font-size: 0; }
@@ -93,15 +53,11 @@
   #photo-preview { display: none; margin-top: 12px; position: relative; border-radius: var(--radius-sm); overflow: hidden; }
   #photo-preview img { width: 100%; max-height: 240px; object-fit: cover; display: block; }
   .photo-remove { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.75); border: none; border-radius: 50%; width: 34px; height: 34px; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-  /* SUBMIT */
   .submit-btn { width: 100%; padding: 18px; border-radius: var(--radius-sm); border: none; background: var(--purple); color: #fff; font-family: var(--font); font-size: 17px; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .submit-btn:active { transform: scale(.98); opacity: .9; }
   .submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
   .spinner { width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* SUCCESS */
   #success-screen { display: none; min-height: 100vh; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 40px 24px; }
   .success-icon { width: 88px; height: 88px; border-radius: 50%; background: rgba(34,197,94,.15); border: 2px solid rgba(34,197,94,.4); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 24px; animation: pop .4s cubic-bezier(.175,.885,.32,1.275); }
   @keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
@@ -109,51 +65,23 @@
   .success-sub { font-size: 15px; color: var(--text2); line-height: 1.7; margin-bottom: 28px; }
   .success-id { font-family: var(--mono); font-size: 12px; color: var(--text3); background: var(--surface); border: 1px solid var(--border); padding: 9px 18px; border-radius: 99px; margin-bottom: 32px; }
   .another-btn { background: var(--surface); border: 1.5px solid var(--border); color: var(--text2); font-family: var(--font); font-size: 15px; font-weight: 600; padding: 14px 30px; border-radius: var(--radius-sm); cursor: pointer; }
-
-  /* SHARED */
-  .btn-primary { width: 100%; padding: 15px; border-radius: var(--radius-sm); border: none; background: var(--accent); color: #fff; font-family: var(--font); font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 4px; }
   .err { color: var(--red); font-size: 12px; margin-top: 6px; display: none; }
   .err.show { display: block; }
 </style>
 </head>
 <body>
 
-<!-- SETUP -->
-<div id="setup-screen">
-  <div class="setup-box">
-    <div class="setup-logo">🎫 Ticket<span>Formular</span></div>
-    <p class="setup-sub">Einmalige Einrichtung durch den Administrator. Danach einfach den Link teilen.</p>
-    <div class="setup-hint">
-      <strong>Wo finde ich URL &amp; Key?</strong><br>
-      Öffne die Instandhaltungs-Software im Browser → drücke <code>F12</code> → Tab <code>Application</code> → <code>Local Storage</code> → kopiere die Werte von <code>sb_url</code> und <code>sb_key</code>.
-    </div>
-    <div class="setup-field">
-      <label>Supabase URL</label>
-      <input type="text" id="setup-url" placeholder="https://xxxxxxxxxxxx.supabase.co">
-    </div>
-    <div class="setup-field">
-      <label>Supabase Anon Key</label>
-      <input type="text" id="setup-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
-    </div>
-    <p id="setup-error"></p>
-    <button class="btn-primary" onclick="setupConnect()">Verbinden & Formular öffnen →</button>
-  </div>
-</div>
-
-<!-- FORM -->
 <div id="form-screen">
   <div class="header">
     <div class="header-logo">⚡ INFRATRACK · Sportzentrum</div>
     <div class="header-title">Schaden <span>melden</span></div>
   </div>
   <div class="form-body">
-
     <div class="field">
       <label>Ihr Name <span class="req">*</span></label>
       <input type="text" id="f-name" placeholder="z.B. Maria Müller" autocomplete="name">
       <p class="err" id="err-name">Bitte Name eingeben.</p>
     </div>
-
     <div class="field">
       <label>Gebäude <span class="req">*</span></label>
       <select id="f-gebaeude">
@@ -167,33 +95,23 @@
       </select>
       <p class="err" id="err-gebaeude">Bitte Gebäude auswählen.</p>
     </div>
-
     <div class="field">
       <label>Dringlichkeit <span class="req">*</span></label>
       <div class="prio-group">
-        <div class="prio-pill" id="prio-hoch" onclick="selectPrio('Hoch')">
-          <span class="emo">🔴</span>Hoch
-        </div>
-        <div class="prio-pill sel-normal" id="prio-normal" onclick="selectPrio('Normal')">
-          <span class="emo">🟡</span>Normal
-        </div>
-        <div class="prio-pill" id="prio-niedrig" onclick="selectPrio('Niedrig')">
-          <span class="emo">🟢</span>Niedrig
-        </div>
+        <div class="prio-pill" id="prio-hoch" onclick="selectPrio('Hoch')"><span class="emo">🔴</span>Hoch</div>
+        <div class="prio-pill sel-normal" id="prio-normal" onclick="selectPrio('Normal')"><span class="emo">🟡</span>Normal</div>
+        <div class="prio-pill" id="prio-niedrig" onclick="selectPrio('Niedrig')"><span class="emo">🟢</span>Niedrig</div>
       </div>
     </div>
-
     <div class="field">
       <label>Was ist das Problem? <span class="req">*</span></label>
       <input type="text" id="f-titel" placeholder="z.B. Fenster in Halle 2 gebrochen" maxlength="120">
       <p class="err" id="err-titel">Bitte kurze Beschreibung eingeben.</p>
     </div>
-
     <div class="field">
       <label>Zusätzliche Details</label>
       <textarea id="f-beschreibung" placeholder="Genauerer Standort, was passiert ist, seit wann..."></textarea>
     </div>
-
     <div class="field">
       <label>Foto anhängen</label>
       <div class="photo-zone" id="photo-zone">
@@ -207,23 +125,16 @@
         <button class="photo-remove" onclick="removePhoto()">✕</button>
       </div>
     </div>
-
     <button class="submit-btn" id="submit-btn" onclick="submitTicket()">
       <span id="submit-label">🎫 Ticket absenden</span>
       <div class="spinner" id="submit-spinner" style="display:none"></div>
     </button>
-
     <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:16px;line-height:1.6">
       Das Ticket geht direkt ans Instandhaltungsteam.<br>Bei Rückfragen werden Sie kontaktiert.
-    </p>
-
-    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:24px">
-      <a href="#" onclick="resetConfig()" style="color:var(--text3)">⚙️ Verbindung ändern</a>
     </p>
   </div>
 </div>
 
-<!-- SUCCESS -->
 <div id="success-screen">
   <div class="success-icon">✅</div>
   <div class="success-title">Ticket gesendet!</div>
@@ -233,58 +144,17 @@
 </div>
 
 <script>
+const SUPABASE_URL = 'https://qispyqytoznacuvtrvob.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpc3B5cXl0b3puYWN1dnRydm9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MTM2NzQsImV4cCI6MjA5MDE4OTY3NH0.TU6PoE-pgbPn1N0JQoFA-_lNe2GHyQcQ_s3Fby92k_c';
+
 let sb = null;
 let selectedPrio = 'Normal';
 let photoFile = null;
 
-// ── INIT ──
 window.addEventListener('DOMContentLoaded', () => {
-  const url = localStorage.getItem('tf_url');
-  const key = localStorage.getItem('tf_key');
-  if (url && key) {
-    try { sb = supabase.createClient(url, key); showForm(); } catch(e) {}
-  }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 });
 
-// ── SETUP ──
-function setupConnect() {
-  const url = document.getElementById('setup-url').value.trim();
-  const key = document.getElementById('setup-key').value.trim();
-  const errEl = document.getElementById('setup-error');
-  errEl.style.display = 'none';
-
-  if (!url.startsWith('https://')) {
-    errEl.textContent = 'Bitte gültige URL eingeben (muss mit https:// beginnen).';
-    errEl.style.display = 'block'; return;
-  }
-  if (key.length < 20) {
-    errEl.textContent = 'Bitte gültigen Anon-Key eingeben.';
-    errEl.style.display = 'block'; return;
-  }
-  try {
-    sb = supabase.createClient(url, key);
-    localStorage.setItem('tf_url', url);
-    localStorage.setItem('tf_key', key);
-    showForm();
-  } catch(e) {
-    errEl.textContent = 'Fehler: ' + e.message;
-    errEl.style.display = 'block';
-  }
-}
-
-function showForm() {
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('form-screen').style.display = 'block';
-}
-
-function resetConfig() {
-  localStorage.removeItem('tf_url');
-  localStorage.removeItem('tf_key');
-  document.getElementById('form-screen').style.display = 'none';
-  document.getElementById('setup-screen').style.display = 'flex';
-}
-
-// ── PRIORITY ──
 function selectPrio(val) {
   selectedPrio = val;
   ['Hoch','Normal','Niedrig'].forEach(p => {
@@ -294,7 +164,6 @@ function selectPrio(val) {
   });
 }
 
-// ── PHOTO ──
 function handlePhoto(input) {
   const file = input.files[0];
   if (!file) return;
@@ -315,7 +184,6 @@ function removePhoto() {
   document.getElementById('f-foto').value = '';
 }
 
-// ── VALIDATE ──
 function validate() {
   let ok = true;
   const checks = [
@@ -326,19 +194,14 @@ function validate() {
   checks.forEach(c => {
     const val = document.getElementById(c.id).value;
     const errEl = document.getElementById(c.err);
-    if (!c.fn(val)) {
-      errEl.classList.add('show');
-      if (ok) document.getElementById(c.id).scrollIntoView({ behavior: 'smooth', block: 'center' });
-      ok = false;
-    } else errEl.classList.remove('show');
+    if (!c.fn(val)) { errEl.classList.add('show'); ok = false; }
+    else errEl.classList.remove('show');
   });
   return ok;
 }
 
-// ── SUBMIT ──
 async function submitTicket() {
   if (!validate()) return;
-
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
   document.getElementById('submit-label').style.display = 'none';
@@ -352,43 +215,28 @@ async function submitTicket() {
   let beschreibung = `📋 Gemeldet von: ${melder}`;
   if (details) beschreibung += `\n\n${details}`;
 
-  // Try to upload photo
   if (photoFile) {
     try {
       const ext = (photoFile.name.split('.').pop() || 'jpg').toLowerCase();
       const filename = `ticket-${Date.now()}.${ext}`;
-      const { data: upData, error: upErr } = await sb.storage
-        .from('ticket-fotos')
-        .upload(filename, photoFile, { contentType: photoFile.type });
+      const { data: upData, error: upErr } = await sb.storage.from('ticket-fotos').upload(filename, photoFile, { contentType: photoFile.type });
       if (!upErr && upData) {
         const { data: urlData } = sb.storage.from('ticket-fotos').getPublicUrl(filename);
         if (urlData?.publicUrl) beschreibung += `\n\n🖼️ Foto: ${urlData.publicUrl}`;
       }
-    } catch(_) {
-      // Foto optional — kein Absturz wenn Bucket fehlt
-      beschreibung += '\n\n📷 [Foto konnte nicht hochgeladen werden — bitte Storage-Bucket "ticket-fotos" in Supabase erstellen]';
-    }
+    } catch(_) {}
   }
 
   try {
     const { data, error } = await sb.from('tickets').insert({
-      titel,
-      beschreibung,
-      prioritaet: selectedPrio,
-      gebaeude,
-      verantwortlicher: '',
-      erledigt: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      titel, beschreibung, prioritaet: selectedPrio, gebaeude,
+      verantwortlicher: '', erledigt: false,
+      created_at: new Date().toISOString(), updated_at: new Date().toISOString()
     }).select().single();
-
     if (error) throw error;
-
     document.getElementById('form-screen').style.display = 'none';
     document.getElementById('success-screen').style.display = 'flex';
-    document.getElementById('success-id').textContent =
-      'Ticket-ID: ' + (data.id ? data.id.substring(0,8).toUpperCase() : '–');
-
+    document.getElementById('success-id').textContent = 'Ticket-ID: ' + (data.id ? data.id.substring(0,8).toUpperCase() : '–');
   } catch(e) {
     btn.disabled = false;
     document.getElementById('submit-label').style.display = 'inline';
@@ -397,7 +245,6 @@ async function submitTicket() {
   }
 }
 
-// ── RESET ──
 function resetForm() {
   ['f-name','f-titel','f-beschreibung'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-gebaeude').value = '';
