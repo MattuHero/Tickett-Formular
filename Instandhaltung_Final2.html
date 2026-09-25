@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ticket melden – Sportzentrum</title>
+<!--
+  Auf dieser Seite wird bewusst KEIN Inhalt aus der Datenbank angezeigt und
+  nichts gelesen, geändert oder gelöscht – das Formular kann nur melden.
+  Die melde_ticket()-Funktion in der Datenbank erzwingt das zusätzlich.
+  Versionsangepinnte Bibliothek mit Integritätsprüfung: ein beschädigtes
+  oder ausgetauschtes CDN-Skript wird vom Browser abgewiesen.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://qispyqytoznacuvtrvob.supabase.co wss://qispyqytoznacuvtrvob.supabase.co; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"
+        integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #181c27; --surface2: #1e2333; --surface3: #252a3d;
+    --border: #2a3050; --border2: #333a55; --accent: #4f8ef7; --purple: #6c63ff;
+    --green: #22c55e; --red: #ef4444; --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b;
+    --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace; --radius: 14px; --radius-sm: 10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 16px; -webkit-font-smoothing: antialiased; }
+  #form-screen { display: block; min-height: 100vh; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 20px 16px; position: sticky; top: 0; z-index: 10; }
+  .header-logo { font-size: 12px; font-weight: 600; color: var(--text3); font-family: var(--mono); letter-spacing: .05em; margin-bottom: 4px; }
+  .header-title { font-size: 22px; font-weight: 700; }
+  .header-title span { color: var(--purple); }
+  .form-body { padding: 24px 20px 48px; max-width: 500px; margin: 0 auto; }
+  .field { margin-bottom: 22px; }
+  .field label { display: block; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 9px; }
+  .field label .req { color: var(--accent); margin-left: 2px; }
+  input[type=text], textarea, select {
+    width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); padding: 15px 16px; color: var(--text);
+    font-family: var(--font); font-size: 16px; outline: none; transition: border-color .2s;
+    -webkit-appearance: none; appearance: none;
+  }
+  input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  input::placeholder, textarea::placeholder { color: var(--text3); }
+  textarea { resize: none; min-height: 100px; line-height: 1.5; }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 16px center; padding-right: 42px; cursor: pointer;
+  }
+  .prio-group { display: flex; gap: 10px; }
+  .prio-pill { flex: 1; padding: 14px 8px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--surface2); color: var(--text3); font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; transition: all .2s; user-select: none; }
+  .prio-pill .emo { display: block; font-size: 22px; margin-bottom: 5px; }
+  .prio-pill.sel-hoch { border-color: var(--red); background: rgba(239,68,68,.12); color: #f87171; }
+  .prio-pill.sel-normal { border-color: var(--accent); background: rgba(79,142,247,.12); color: #60a5fa; }
+  .prio-pill.sel-niedrig { border-color: var(--text3); background: rgba(100,116,139,.1); color: var(--text2); }
+  .photo-zone { border: 2px dashed var(--border2); border-radius: var(--radius-sm); padding: 32px 20px; text-align: center; cursor: pointer; transition: all .2s; position: relative; }
+  .photo-zone:active { border-color: var(--accent); background: rgba(79,142,247,.05); }
+  .photo-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; font-size: 0; }
+  .photo-zone-icon { font-size: 34px; margin-bottom: 8px; }
+  .photo-zone-text { font-size: 15px; color: var(--text2); font-weight: 600; }
+  .photo-zone-sub { font-size: 12px; color: var(--text3); margin-top: 5px; }
+  #photo-preview { display: none; margin-top: 12px; position: relative; border-radius: var(--radius-sm); overflow: hidden; }
+  #photo-preview img { width: 100%; max-height: 240px; object-fit: cover; display: block; }
+  .photo-remove { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.75); border: none; border-radius: 50%; width: 34px; height: 34px; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .submit-btn { width: 100%; padding: 18px; border-radius: var(--radius-sm); border: none; background: var(--purple); color: #fff; font-family: var(--font); font-size: 17px; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .submit-btn:active { transform: scale(.98); opacity: .9; }
+  .submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .spinner { width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #success-screen { display: none; min-height: 100vh; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 40px 24px; }
+  .success-icon { width: 88px; height: 88px; border-radius: 50%; background: rgba(34,197,94,.15); border: 2px solid rgba(34,197,94,.4); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 24px; animation: pop .4s cubic-bezier(.175,.885,.32,1.275); }
+  @keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+  .success-title { font-size: 26px; font-weight: 700; margin-bottom: 12px; }
+  .success-sub { font-size: 15px; color: var(--text2); line-height: 1.7; margin-bottom: 28px; }
+  .success-id { font-family: var(--mono); font-size: 12px; color: var(--text3); background: var(--surface); border: 1px solid var(--border); padding: 9px 18px; border-radius: 99px; margin-bottom: 32px; }
+  .another-btn { background: var(--surface); border: 1.5px solid var(--border); color: var(--text2); font-family: var(--font); font-size: 15px; font-weight: 600; padding: 14px 30px; border-radius: var(--radius-sm); cursor: pointer; }
+  .err { color: var(--red); font-size: 12px; margin-top: 6px; display: none; }
+  .err.show { display: block; }
+</style>
+</head>
+<body>
+
+<div id="form-screen">
+  <div class="header">
+    <div class="header-logo">⚡ INFRATRACK · Sportzentrum</div>
+    <div class="header-title">Schaden <span>melden</span></div>
+  </div>
+  <div class="form-body">
+    <div class="field">
+      <label>Ihr Name <span class="req">*</span></label>
+      <input type="text" id="f-name" placeholder="z.B. Maria Müller" autocomplete="name" maxlength="120">
+      <p class="err" id="err-name">Bitte Name eingeben.</p>
+    </div>
+    <!-- Honigtopf: für Menschen unsichtbar, für Bots ein Köder. -->
+    <div aria-hidden="true" style="position:absolute;left:-9999px;height:0;overflow:hidden">
+      <label>Bitte nicht ausfüllen<input type="text" id="f-website" tabindex="-1" autocomplete="off"></label>
+    </div>
+    <div class="field">
+      <label>Gebäude <span class="req">*</span></label>
+      <select id="f-gebaeude">
+        <option value="">— Bitte wählen —</option>
+        <option>Dreifachturnhalle</option>
+        <option>SeReal</option>
+        <option>Bezirksschule</option>
+        <option>Trainingshalle</option>
+        <option>Aussenanlage</option>
+        <option>Verwaltungsgebäude</option>
+      </select>
+      <p class="err" id="err-gebaeude">Bitte Gebäude auswählen.</p>
+    </div>
+    <div class="field">
+      <label>Dringlichkeit <span class="req">*</span></label>
+      <div class="prio-group">
+        <div class="prio-pill" id="prio-hoch" onclick="selectPrio('Hoch')"><span class="emo">🔴</span>Hoch</div>
+        <div class="prio-pill sel-normal" id="prio-normal" onclick="selectPrio('Normal')"><span class="emo">🟡</span>Normal</div>
+        <div class="prio-pill" id="prio-niedrig" onclick="selectPrio('Niedrig')"><span class="emo">🟢</span>Niedrig</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Was ist das Problem? <span class="req">*</span></label>
+      <input type="text" id="f-titel" placeholder="z.B. Fenster in Halle 2 gebrochen" maxlength="120">
+      <p class="err" id="err-titel">Bitte kurze Beschreibung eingeben.</p>
+    </div>
+    <div class="field">
+      <label>Zusätzliche Details</label>
+      <textarea id="f-beschreibung" placeholder="Genauerer Standort, was passiert ist, seit wann..."></textarea>
+    </div>
+    <div class="field">
+      <label>Foto anhängen</label>
+      <div class="photo-zone" id="photo-zone">
+        <input type="file" id="f-foto" accept="image/*" capture="environment" onchange="handlePhoto(this)">
+        <div class="photo-zone-icon">📷</div>
+        <div class="photo-zone-text">Foto aufnehmen oder auswählen</div>
+        <div class="photo-zone-sub">Tippe hier um die Kamera zu öffnen</div>
+      </div>
+      <div id="photo-preview">
+        <img id="photo-img" src="" alt="Vorschau">
+        <button class="photo-remove" onclick="removePhoto()">✕</button>
+      </div>
+    </div>
+    <button class="submit-btn" id="submit-btn" onclick="submitTicket()">
+      <span id="submit-label">🎫 Ticket absenden</span>
+      <div class="spinner" id="submit-spinner" style="display:none"></div>
+    </button>
+    <p class="err" id="send-error" style="text-align:center;margin-top:14px;line-height:1.6"></p>
+    <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:16px;line-height:1.6">
+      Das Ticket geht direkt ans Instandhaltungsteam.<br>Bei Rückfragen werden Sie kontaktiert.
+    </p>
+  </div>
+</div>
+
+<div id="success-screen">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Ticket gesendet!</div>
+  <div class="success-sub">Vielen Dank. Das Instandhaltungsteam<br>wurde benachrichtigt.</div>
+  <div class="success-id" id="success-id">Ticket-ID: –</div>
+  <button class="another-btn" onclick="resetForm()">➕ Weiteres Ticket melden</button>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://qispyqytoznacuvtrvob.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpc3B5cXl0b3puYWN1dnRydm9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MTM2NzQsImV4cCI6MjA5MDE4OTY3NH0.TU6PoE-pgbPn1N0JQoFA-_lNe2GHyQcQ_s3Fby92k_c';
+
+let sb = null;
+let selectedPrio = 'Normal';
+let photoFile = null;
+
+// Fotos landen ausschliesslich in diesem Ordner. Die Storage-Policy in
+// sql/04_ticketformular.sql lässt nur Pfade zu, deren erstes Segment
+// 'meldungen' ist – ein fremder Dateiname kann also nichts anderes anreiben.
+const FOTO_ORDNER = 'meldungen';
+const MAX_FOTO_BYTES = 10 * 1024 * 1024;
+const ERLAUBTE_FOTO_TYPEN = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+
+window.addEventListener('DOMContentLoaded', () => {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+});
+
+function selectPrio(val) {
+  selectedPrio = val;
+  ['Hoch','Normal','Niedrig'].forEach(p => {
+    const el = document.getElementById('prio-' + p.toLowerCase());
+    el.className = 'prio-pill';
+    if (p === val) el.classList.add('sel-' + p.toLowerCase());
+  });
+}
+
+function handlePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Gleiche Prüfung wie im Hauptprogramm: Typ UND Endung müssen passen.
+  // Manche Telefone liefern beim HEIC-Upload ein leeres type, deshalb wird
+  // die Endung mitgeprüft.
+  const endung = ('.' + (file.name.split('.').pop() || '')).toLowerCase();
+  const typOk = ERLAUBTE_FOTO_TYPEN.includes(file.type)
+             || ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'].includes(endung);
+  if (!typOk) {
+    showSendError('Dieser Dateityp ist nicht erlaubt. Bitte JPEG, PNG oder WebP verwenden.');
+    removePhoto();
+    return;
+  }
+  if (file.size > MAX_FOTO_BYTES) {
+    showSendError('Das Foto ist zu gross (max. 10 MB).');
+    removePhoto();
+    return;
+  }
+
+  photoFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('photo-img').src = e.target.result;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('photo-zone').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto() {
+  photoFile = null;
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-zone').style.display = 'block';
+  document.getElementById('f-foto').value = '';
+}
+
+function validate() {
+  let ok = true;
+  const checks = [
+    { id: 'f-name', err: 'err-name', fn: v => v.trim().length >= 2 },
+    { id: 'f-gebaeude', err: 'err-gebaeude', fn: v => v !== '' },
+    { id: 'f-titel', err: 'err-titel', fn: v => v.trim().length >= 3 }
+  ];
+  checks.forEach(c => {
+    const val = document.getElementById(c.id).value;
+    const errEl = document.getElementById(c.err);
+    if (!c.fn(val)) { errEl.classList.add('show'); ok = false; }
+    else errEl.classList.remove('show');
+  });
+  return ok;
+}
+
+// Dateiname für den Upload: vollständig selbst erzeugt, nie vom Gerät
+// übernommen. Sonst könnte ein Gerät einen Pfad wie "../../x" mitschicken.
+function fotoZielname(datei) {
+  const endung = (datei.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return `${FOTO_ORDNER}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${endung || 'jpg'}`;
+}
+
+function showSendError(text) {
+  const el = document.getElementById('send-error');
+  el.textContent = text;
+  el.classList.add('show');
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = false;
+  document.getElementById('submit-label').style.display = 'inline';
+  document.getElementById('submit-spinner').style.display = 'none';
+}
+
+function clearSendError() {
+  const el = document.getElementById('send-error');
+  el.textContent = '';
+  el.classList.remove('show');
+}
+
+async function submitTicket() {
+  clearSendError();
+  if (!validate()) return;
+
+  // Honigtopf: von Menschen nie ausgefüllt, von einfachen Bots schon.
+  if (document.getElementById('f-website').value) return;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  document.getElementById('submit-label').style.display = 'none';
+  document.getElementById('submit-spinner').style.display = 'block';
+
+  const melder = document.getElementById('f-name').value.trim();
+  const titel = document.getElementById('f-titel').value.trim();
+  const details = document.getElementById('f-beschreibung').value.trim();
+  const gebaeude = document.getElementById('f-gebaeude').value;
+
+  // Foto zuerst hochladen – schlägt das fehl, wird das Ticket trotzdem
+  // gemeldet, nur eben ohne Bild. Ein Schadensfoto ist optional.
+  let fotoUrl = '';
+  if (photoFile) {
+    try {
+      const pfad = fotoZielname(photoFile);
+      const { error: upErr } = await sb.storage
+        .from('ticket-fotos')
+        .upload(pfad, photoFile, { contentType: photoFile.type || 'image/jpeg', upsert: false });
+      if (!upErr) {
+        const { data: urlData } = sb.storage.from('ticket-fotos').getPublicUrl(pfad);
+        if (urlData && urlData.publicUrl) fotoUrl = urlData.publicUrl;
+      } else {
+        console.warn('Foto-Upload fehlgeschlagen:', upErr.message);
+      }
+    } catch (err) {
+      console.warn('Foto-Upload:', err);
+    }
+  }
+
+  try {
+    // Bewusst eine Funktion und kein direkter INSERT: nur sie darf anlegen,
+    // sie setzt 'erledigt' und die Zeitstempel selbst, und ein Aufrufer
+    // kann weder lesen noch ändern noch löschen.
+    const { data: ticketId, error } = await sb.rpc('melde_ticket', {
+      p_titel: titel,
+      p_gebaeude: gebaeude,
+      p_prioritaet: selectedPrio,
+      p_melder: melder,
+      p_beschreibung: details,
+      p_foto_url: fotoUrl,
+    });
+    if (error) throw error;
+
+    document.getElementById('form-screen').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'flex';
+    document.getElementById('success-id').textContent = 'Ticket-ID: '
+      + (ticketId ? String(ticketId).substring(0, 8).toUpperCase() : '–');
+  } catch (e) {
+    const msg = String((e && e.message) || e || '');
+    if (msg.includes('rate_limited')) {
+      showSendError('Es wurden in der letzten Stunde bereits viele Meldungen geschickt. Bitte später erneut versuchen oder das Team direkt anrufen.');
+    } else if (msg.includes('title_too_short')) {
+      showSendError('Bitte eine kurze Beschreibung eingeben (mindestens 3 Zeichen).');
+    } else if (msg.includes('name_too_short')) {
+      showSendError('Bitte Ihren Namen eingeben.');
+    } else if (msg.includes('Could not find the function')) {
+      // Sehr wahrscheinlich: SQL-Teil 04 wurde noch nicht ausgeführt.
+      showSendError('Das Formular ist noch nicht eingerichtet. Bitte das Instandhaltungsteam benachrichtigen.');
+    } else if (msg.includes('42501') || msg.includes('row-level security')) {
+      showSendError('Das Formular ist gerade nicht erreichbar. Bitte das Instandhaltungsteam direkt kontaktieren.');
+    } else if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      showSendError('Keine Verbindung. Bitte Internetverbindung prüfen und erneut senden.');
+    } else {
+      showSendError('Fehler beim Senden: ' + (msg || 'unbekannter Fehler'));
+    }
+    console.error('submitTicket:', e);
+  }
+}
+
+function resetForm() {
+  ['f-name','f-titel','f-beschreibung','f-website'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-gebaeude').value = '';
+  selectPrio('Normal');
+  removePhoto();
+  clearSendError();
+  document.querySelectorAll('.err').forEach(e => e.classList.remove('show'));
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = false;
+  document.getElementById('submit-label').style.display = 'inline';
+  document.getElementById('submit-spinner').style.display = 'none';
+  document.getElementById('success-screen').style.display = 'none';
+  document.getElementById('form-screen').style.display = 'block';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
